@@ -4,7 +4,6 @@ import axios from "axios";
     (replacing the placeholder with your Github name):
     https://api.github.com/users/<your name>
 */
-
 /*
   STEP 2: Inspect and study the data coming back, this is YOUR
     github info! You will need to understand the structure of this
@@ -31,6 +30,29 @@ import axios from "axios";
 
 const followersArray = [];
 
+axios
+  .get("https://api.github.com/users/dustinmyers/followers")
+  .then((res) => {
+    res.data.forEach((obj) => {
+      followersArray.push(obj.login);
+    });
+    return followersArray;
+  })
+
+  .then((names) => {
+    names.forEach((name) => {
+      axios
+        .get(`https://api.github.com/users/${name}`)
+        .then((res) => {
+          console.log(res.data);
+          cardTarget.appendChild(cardMaker(res.data));
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
+  });
+
 /*
   STEP 3: Create a function that accepts a single object as its only argument.
     Using DOM methods and properties, create and return the following markup:
@@ -50,6 +72,66 @@ const followersArray = [];
       </div>
     </div>
 */
+
+function cardMaker(obj) {
+  const card = document.createElement("div");
+  const img = document.createElement("img");
+  const divCardInfo = document.createElement("div");
+  const h3 = document.createElement("h3");
+  const username = document.createElement("p");
+  const userLocation = document.createElement("p");
+  const profileP = document.createElement("p");
+  const profileLink = document.createElement("a");
+  const followersP = document.createElement("p");
+  const followingP = document.createElement("p");
+  const bioP = document.createElement("p");
+
+  card.classList.add("card");
+  divCardInfo.classList.add("card-info");
+  h3.classList.add("name");
+  username.classList.add("username");
+
+  img.src = obj.avatar_url;
+  h3.textContent = obj.name;
+  username.textContent = obj.login;
+  userLocation.textContent = `Location: ${obj.location}`;
+  profileP.textContent = "Profile: ";
+  profileLink.href = obj.html_url;
+  profileLink.innerHTML = "GitHub";
+  followersP.textContent = `Followers: ${obj.followers}`;
+  followingP.textContent = `Following: ${obj.following}`;
+  bioP.textContent = obj.bio;
+
+  card.appendChild(img);
+  card.appendChild(divCardInfo);
+  divCardInfo.appendChild(h3);
+  divCardInfo.appendChild(username);
+  divCardInfo.appendChild(userLocation);
+  divCardInfo.appendChild(profileP);
+  profileP.appendChild(profileLink);
+  divCardInfo.appendChild(followersP);
+  divCardInfo.appendChild(followingP);
+  divCardInfo.appendChild(bioP);
+
+  return card;
+}
+
+const cardTarget = document.querySelector(".cards");
+
+axios
+  .get("https://api.github.com/users/jorshuag")
+  .then((res) => {
+    const card = cardMaker(res.data);
+
+    return card;
+  })
+  .then((card) => {
+    cardTarget.appendChild(card);
+  })
+
+  .catch((err) => {
+    console.log(err);
+  });
 
 /*
   List of LS Instructors Github username's:
